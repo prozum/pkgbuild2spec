@@ -1,6 +1,27 @@
 #!/usr/bin/env bash
 source $1
 
+# Gather build system commands
+BUILD=$(declare -f build | sed -e '1,2d;$ d;s/^[ \t]*//')
+case "$BUILD" in 
+	*cmake*)
+	  BUILD_CMD="%cmake\n%make_build"
+      INSTALL_CMD="%cmake_install"
+	  ;;
+	*configure*)
+      BUILD_CMD="%configure\n%make_build"
+      INSTALL_CMD="%make_install"
+	  ;;
+	*meson*)
+	  BUILD_CMD="%meson\n%meson_build"
+	  INSTALL_CMD="%meson_install"
+	  ;;
+	*)
+	  BUILD_CMD="%make_build"
+	  INSTALL_CMD="%make_install"
+	  ;;
+esac
+
 echo -e "Name:\t\t$pkgname"
 echo -e "Version:\t$pkgver"
 echo -e "Release:\t%{?dist}"
@@ -27,13 +48,15 @@ done
 
 echo -e "\n%prep"
 echo -e "%setup"
-declare -f prepare | sed -e '1,2d;$ d;s/^[ \t]*//'
+declare -f prepare | sed -e '1,2d;$ d;s/^[ \t]*//;s/^/#/'
 
 echo -e "\n%build"
-declare -f build | sed -e '1,2d;$ d;s/^[ \t]*//'
+declare -f build | sed -e '1,2d;$ d;s/^[ \t]*//;s/^/#/'
+echo -e "$BUILD_CMD"
 
 echo -e "\n%install"
-declare -f package | sed -e '1,2d;$ d;s/^[ \t]*//'
+declare -f package | sed -e '1,2d;$ d;s/^[ \t]*//;s/^/#/'
+echo -e "$BUILD_INSTALL"
 
 echo -e "\n%files"
 echo -e "# TODO: Add files"
