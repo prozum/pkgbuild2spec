@@ -1,25 +1,39 @@
 #!/usr/bin/env bash
+
+if [[ -z "$1" ]] ; then
+    echo "No argument supplied!"
+    echo "Usage: pkgbuild2spec PKGBUILD-FILE"
+    exit 1
+fi
+
+if [[ ! -f "$1" ]] ; then
+    echo "File '$1' not found!"
+    echo "Usage: pkgbuild2spec PKGBUILD-FILE"
+    exit 1
+fi
+
+# Load PKGBUILD
 source $1
 
 # Gather build system commands
 BUILD=$(declare -f build | sed -e '1,2d;$ d;s/^[ \t]*//')
 case "$BUILD" in 
-	*cmake*)
-	  BUILD_CMD="%cmake\n%make_build"
+    *cmake*)
+      BUILD_CMD="%cmake\n%make_build"
       INSTALL_CMD="%cmake_install"
-	  ;;
-	*configure*)
+      ;;
+    *configure*)
       BUILD_CMD="%configure\n%make_build"
       INSTALL_CMD="%make_install"
-	  ;;
-	*meson*)
-	  BUILD_CMD="%meson\n%meson_build"
-	  INSTALL_CMD="%meson_install"
-	  ;;
-	*)
-	  BUILD_CMD="%make_build"
-	  INSTALL_CMD="%make_install"
-	  ;;
+      ;;
+    *meson*)
+      BUILD_CMD="%meson\n%meson_build"
+      INSTALL_CMD="%meson_install"
+      ;;
+    *)
+      BUILD_CMD="%make_build"
+      INSTALL_CMD="%make_install"
+      ;;
 esac
 
 echo -e "Name:\t\t$pkgname"
