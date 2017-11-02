@@ -53,11 +53,9 @@ do
 	echo -e "Requires:\t$dep"
 done
 
-n=0
 for src in "${source[@]}"
 do
-	echo -e "Source$n:\t$src"
-	((n++))
+    echo -e "Source$((n++)):\t$src"
 done
 
 echo -e "\n%prep"
